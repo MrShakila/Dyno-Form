@@ -1,3 +1,8 @@
+## 1.0.3
+
+* Added `example` app so pub.dev correctly displays the Example tab.
+* Implemented start date and end date cross-field boundaries.
+
 ## 1.0.0
 
 * Initial release of dyno_form!

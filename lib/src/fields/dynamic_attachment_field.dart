@@ -22,7 +22,7 @@ class _DynamicAttachmentFieldState extends State<DynamicAttachmentField> {
     return ReactiveValueListenableBuilder(
       formControlName: controlName,
       builder: (context, control, child) {
-        final Color? dynamicFillColor = getImagePickerColor(control);
+        final Color? dynamicFillColor = getImagePickerColor(control, context);
         return ReactiveImagePicker(
           formControlName: controlName,
           decoration: InputDecoration(
@@ -37,9 +37,9 @@ class _DynamicAttachmentFieldState extends State<DynamicAttachmentField> {
                     // Add your default style here if needed, e.g., style: TextStyle(color: Colors.black)
                   ),
                   if (widget.field.isMandatory)
-                    const TextSpan(
+                     TextSpan(
                       text: " *",
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: DynoFormTheme.of(context).mandatoryStarColor ?? Theme.of(context).colorScheme.error),
                     ),
                 ],
               ),
@@ -54,7 +54,8 @@ class _DynamicAttachmentFieldState extends State<DynamicAttachmentField> {
   }
 }
 
-Color? getImagePickerColor(AbstractControl<dynamic> control) {
+Color? getImagePickerColor(AbstractControl<dynamic> control, BuildContext context) {
+  final style = DynoFormTheme.of(context);
   // 1. Get value safely
   final value = control.value;
 
@@ -64,12 +65,12 @@ Color? getImagePickerColor(AbstractControl<dynamic> control) {
 
   // 3. Error State: Empty + Touched + Required (Error)
   if (control.hasErrors && control.touched) {
-    return Colors.redAccent.withValues(alpha: 0.1);
+    return style.errorFillColor ?? Theme.of(context).colorScheme.error.withValues(alpha: 0.1);
   }
 
   // 4. Success State: Has images
   if (hasImages) {
-    return Colors.greenAccent.withValues(alpha: 0.5);
+    return style.successFillColor ?? Colors.greenAccent.withValues(alpha: 0.5);
   }
 
   // 5. Default State

@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../dyno_form_theme.dart';
+
 class SectionTitle extends StatelessWidget {
   final String? text;
   final Widget? rightAlignedWidget;
@@ -8,6 +10,7 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = DynoFormTheme.of(context);
     return text != null || text != ""
         ? Padding(
             padding: const EdgeInsets.only(bottom: 5.0),
@@ -20,7 +23,7 @@ class SectionTitle extends StatelessWidget {
                     Expanded(
                       child: Text(
                         text!,
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: style.sectionTitleStyle ?? Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
                     rightAlignedWidget ?? const SizedBox.shrink(),

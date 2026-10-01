@@ -18,7 +18,7 @@ class _DynamicDropdownFieldState extends State<DynamicDropdownField> {
       return ReactiveValueListenableBuilder(
         formControlName: controlName,
         builder: (context, control, child) {
-          final Color? dynamicFillColor = getDynamicFillColor(control);
+          final Color? dynamicFillColor = getDynamicFillColor(control, context);
           return ReactiveDropdownField<String>(
             formControlName: controlName,
             decoration: InputDecoration(
@@ -29,9 +29,9 @@ class _DynamicDropdownFieldState extends State<DynamicDropdownField> {
                   children: [
                     TextSpan(text: widget.field.fieldName),
                     if (widget.field.isMandatory)
-                      const TextSpan(
+                       TextSpan(
                         text: " *",
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(color: DynoFormTheme.of(context).mandatoryStarColor ?? Theme.of(context).colorScheme.error),
                       ),
                   ],
                 ),

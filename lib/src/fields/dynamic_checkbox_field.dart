@@ -16,7 +16,7 @@ class _DynamicCheckboxFieldState extends State<DynamicCheckboxField> {
     return ReactiveValueListenableBuilder(
       formControlName: controlName,
       builder: (context, control, child) {
-        final Color? dynamicFillColor = getCheckboxColor(control);
+        final Color? dynamicFillColor = getCheckboxColor(control, context);
         return ReactiveFormField(
           formControlName: controlName,
           builder: (ReactiveFormFieldState<bool, bool> field) {
@@ -34,9 +34,9 @@ class _DynamicCheckboxFieldState extends State<DynamicCheckboxField> {
                           // Add your default style here if needed, e.g., style: TextStyle(color: Colors.black)
                         ),
                         if (widget.field.isMandatory)
-                          const TextSpan(
+                           TextSpan(
                             text: " *",
-                            style: TextStyle(color: Colors.red),
+                            style: TextStyle(color: DynoFormTheme.of(context).mandatoryStarColor ?? Theme.of(context).colorScheme.error),
                           ),
                       ],
                     ),

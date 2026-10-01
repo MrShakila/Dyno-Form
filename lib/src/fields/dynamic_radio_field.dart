@@ -16,7 +16,7 @@ class _DynamicRadioFieldState extends State<DynamicRadioField> {
     return ReactiveValueListenableBuilder(
       formControlName: controlName,
       builder: (context, control, child) {
-        final Color? dynamicFillColor = getDynamicFillColor(control);
+        final Color? dynamicFillColor = getDynamicFillColor(control, context);
         return ReactiveFormField(
           formControlName: controlName,
           builder: (ReactiveFormFieldState<String, String> field) {
@@ -36,9 +36,9 @@ class _DynamicRadioFieldState extends State<DynamicRadioField> {
                           // Add your default style here if needed, e.g., style: TextStyle(color: Colors.black)
                         ),
                         if (widget.field.isMandatory)
-                          const TextSpan(
+                           TextSpan(
                             text: " *",
-                            style: TextStyle(color: Colors.red),
+                            style: TextStyle(color: DynoFormTheme.of(context).mandatoryStarColor ?? Theme.of(context).colorScheme.error),
                           ),
                       ],
                     ),

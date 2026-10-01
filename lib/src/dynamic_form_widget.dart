@@ -6,17 +6,20 @@ import 'models/dynamic_field_type.dart';
 import 'fields/dynamic_fields.dart';
 import 'custom/section_title.dart';
 import 'custom/dynamic_custom_checktext_field.dart';
+import 'dyno_form_theme.dart';
 
 class DynamicFormWidget extends StatefulWidget {
   final List<DynamicFieldConfig> fields;
   final void Function(Map<String, dynamic>)? onSubmit;
   final String submitButtonText;
+  final DynoFormStyle? style;
   
   const DynamicFormWidget({
     super.key,
     required this.fields,
     this.onSubmit,
     this.submitButtonText = 'Submit',
+    this.style,
   });
 
   @override
@@ -79,70 +82,78 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ReactiveForm(
-      formGroup: form,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ...widget.fields.map((field) {
-            final type = DynamicFieldType.tryFromId(field.fieldType);
-            
-            if (type == DynamicFieldType.pageBreak) {
-              return const SizedBox(height: 16);
-            }
-            if (type == DynamicFieldType.sectionSplitter) {
-              return SectionTitle(field.fieldName);
-            }
+    return DynoFormTheme(
+      style: widget.style ?? const DynoFormStyle(),
+      child: Builder(
+        builder: (context) {
+          return ReactiveForm(
+            formGroup: form,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ...widget.fields.map((field) {
+                  final type = DynamicFieldType.tryFromId(field.fieldType);
+                  
+                  if (type == DynamicFieldType.pageBreak) {
+                    return const SizedBox(height: 16);
+                  }
+                  if (type == DynamicFieldType.sectionSplitter) {
+                    return SectionTitle(field.fieldName);
+                  }
 
-            Widget fieldWidget;
-            switch (type) {
-              case DynamicFieldType.dropdown:
-                fieldWidget = DynamicDropdownField(field: field);
-                break;
-              case DynamicFieldType.radio:
-                fieldWidget = DynamicRadioField(field: field);
-                break;
-              case DynamicFieldType.checkbox:
-                fieldWidget = DynamicCheckboxField(field: field);
-                break;
-              case DynamicFieldType.checkText:
-                fieldWidget = DynamicCustomCheckTextField(
-                  formControlName: field.id.toString(),
-                  decoration: InputDecoration(
-                    labelText: field.fieldName,
-                  ),
-                );
-                break;
-              case DynamicFieldType.attachment:
-                fieldWidget = DynamicAttachmentField(field: field);
-                break;
-              case DynamicFieldType.dateTime:
-                fieldWidget = DynamicDateTimeField(field: field);
-                break;
-              default:
-                fieldWidget = DynamicTextField(
-                  field: field,
-                  textEditingValue: const TextEditingValue(),
-                );
-            }
+                  Widget fieldWidget;
+                  switch (type) {
+                    case DynamicFieldType.dropdown:
+                      fieldWidget = DynamicDropdownField(field: field);
+                      break;
+                    case DynamicFieldType.radio:
+                      fieldWidget = DynamicRadioField(field: field);
+                      break;
+                    case DynamicFieldType.checkbox:
+                      fieldWidget = DynamicCheckboxField(field: field);
+                      break;
+                    case DynamicFieldType.checkText:
+                      fieldWidget = DynamicCustomCheckTextField(
+                        formControlName: field.id.toString(),
+                        decoration: InputDecoration(
+                          labelText: field.fieldName,
+                        ),
+                      );
+                      break;
+                    case DynamicFieldType.attachment:
+                      fieldWidget = DynamicAttachmentField(field: field);
+                      break;
+                    case DynamicFieldType.dateTime:
+                      fieldWidget = DynamicDateTimeField(field: field);
+                      break;
+                    default:
+                      fieldWidget = DynamicTextField(
+                        field: field,
+                        textEditingValue: const TextEditingValue(),
+                      );
+                  }
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: fieldWidget,
-            );
-          }),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              if (form.valid) {
-                widget.onSubmit?.call(form.value);
-              } else {
-                form.markAllAsTouched();
-              }
-            },
-            child: Text(widget.submitButtonText),
-          ),
-        ],
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: fieldWidget,
+                  );
+                }),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: DynoFormTheme.of(context).submitButtonStyle,
+                  onPressed: () {
+                    if (form.valid) {
+                      widget.onSubmit?.call(form.value);
+                    } else {
+                      form.markAllAsTouched();
+                    }
+                  },
+                  child: Text(widget.submitButtonText),
+                ),
+              ],
+            ),
+          );
+        }
       ),
     );
   }

@@ -21,7 +21,7 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
     return ReactiveValueListenableBuilder<String>(
       formControlName: controlName,
       builder: (context, control, child) {
-        final Color? dynamicFillColor = getDynamicFillColor(control);
+        final Color? dynamicFillColor = getDynamicFillColor(control, context);
         return ReactiveTextField(
           formControlName: controlName,
           onTapOutside: (event) =>
@@ -40,9 +40,9 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
                         children: [
                           TextSpan(text: widget.field.fieldName),
                           if (widget.field.isMandatory)
-                            const TextSpan(
+                             TextSpan(
                               text: " *",
-                              style: TextStyle(color: Colors.red),
+                              style: TextStyle(color: DynoFormTheme.of(context).mandatoryStarColor ?? Theme.of(context).colorScheme.error),
                             ),
                         ],
                       ),
@@ -57,9 +57,9 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
                       children: [
                         TextSpan(text: widget.field.fieldName),
                         if (widget.field.isMandatory)
-                          const TextSpan(
+                           TextSpan(
                             text: " *",
-                            style: TextStyle(color: Colors.red),
+                            style: TextStyle(color: DynoFormTheme.of(context).mandatoryStarColor ?? Theme.of(context).colorScheme.error),
                           ),
                       ],
                     ),
@@ -150,7 +150,8 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
 }
 
 /// Calculates the background color based on control state
-Color? getDynamicFillColor(AbstractControl control) {
+Color? getDynamicFillColor(AbstractControl control, BuildContext context) {
+  final style = DynoFormTheme.of(context);
   // 1. If empty, keep standard color (null/white/theme default)
   if (control.value == null || control.value.toString().isEmpty) {
     return null;
@@ -158,16 +159,17 @@ Color? getDynamicFillColor(AbstractControl control) {
 
   // 2. If it has errors, show Red tint
   if (control.hasErrors && control.touched) {
-    return Colors.redAccent.withValues(alpha: 0.1);
+    return style.errorFillColor ?? Theme.of(context).colorScheme.error.withValues(alpha: 0.1);
   }
 
   // 3. If filled and valid, show Green tint
-  return Colors.greenAccent.withValues(
+  return style.successFillColor ?? Colors.greenAccent.withValues(
     alpha: 0.5,
   ); // Reduced opacity for better readability
 }
 
-Color? getCheckboxColor(AbstractControl<dynamic> control) {
+Color? getCheckboxColor(AbstractControl<dynamic> control, BuildContext context) {
+  final style = DynoFormTheme.of(context);
   final value = control.value;
   // ReactiveForms booleans can be null, true, or false.
   // Treat null as false.
@@ -175,12 +177,12 @@ Color? getCheckboxColor(AbstractControl<dynamic> control) {
 
   // 1. Error State: Required but unchecked (and touched)
   if (control.hasErrors && control.touched) {
-    return Colors.redAccent.withValues(alpha: 0.1);
+    return style.errorFillColor ?? Theme.of(context).colorScheme.error.withValues(alpha: 0.1);
   }
 
   // 2. Success State: Checked
   if (isChecked) {
-    return Colors.greenAccent.withValues(alpha: 0.5);
+    return style.successFillColor ?? Colors.greenAccent.withValues(alpha: 0.5);
   }
 
   // 3. Default State: Unchecked and valid (or untouched)

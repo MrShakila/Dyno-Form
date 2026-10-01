@@ -38,7 +38,7 @@ class _DynamicDateTimeFieldState extends State<DynamicDateTimeField> {
         }
 
         final control = formGroup.control(controlName);
-        final Color? dynamicFillColor = getDynamicFillColor(control);
+        final Color? dynamicFillColor = getDynamicFillColor(control, context);
         
         return ReactiveDateTimePicker(
           formControlName: controlName,
@@ -55,9 +55,9 @@ class _DynamicDateTimeFieldState extends State<DynamicDateTimeField> {
                     text: widget.field.fieldName,
                   ),
                   if (widget.field.isMandatory)
-                    const TextSpan(
+                     TextSpan(
                       text: " *",
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: DynoFormTheme.of(context).mandatoryStarColor ?? Theme.of(context).colorScheme.error),
                     ),
                 ],
               ),

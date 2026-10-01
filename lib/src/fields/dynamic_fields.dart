@@ -1,7 +1,7 @@
-import 'package:form_craft/src/constants/validation_messages.dart';
-import 'package:form_craft/src/models/dynamic_field_type.dart';
-import 'package:form_craft/src/dynamic_field_validation_type.dart';
-import 'package:form_craft/src/models/dynamic_field_config.dart';
+import 'package:dyno_form/src/constants/validation_messages.dart';
+import 'package:dyno_form/src/models/dynamic_field_type.dart';
+import 'package:dyno_form/src/dynamic_field_validation_type.dart';
+import 'package:dyno_form/src/models/dynamic_field_config.dart';
 
 import 'package:flutter/material.dart';
 import 'package:reactive_date_time_picker/reactive_date_time_picker.dart';

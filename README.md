@@ -23,13 +23,13 @@ If it's published to pub.dev, add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  form_craft: ^0.0.1
+  dyno_form: ^0.0.1
 ```
 
 *(Alternatively, you can pull it directly from git if needed)*:
 ```yaml
 dependencies:
-  form_craft:
+  dyno_form:
     git:
       url: https://github.com/MrShakila/Form-Craft.git
       ref: main
@@ -49,7 +49,7 @@ Simply import the package and use the `DynamicFormWidget`. You can provide your 
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:form_craft/form_craft.dart';
+import 'package:dyno_form/dyno_form.dart';
 
 class MyFormScreen extends StatelessWidget {
   const MyFormScreen({super.key});

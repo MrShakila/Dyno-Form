@@ -1,4 +1,4 @@
-name: form_craft
+name: dyno_form
 description: "A dynamic and reactive form builder for Flutter, supporting validation, multiple input types, and robust configurations."
 version: 1.0.0
 homepage: https://github.com/MrShakila/Form-Craft

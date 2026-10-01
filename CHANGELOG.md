@@ -1,3 +1,6 @@
-## 0.0.1
+## 1.0.0
 
-* TODO: Describe initial release.
+* Initial release of form_craft!
+* Features a fully dynamic, JSON-driven form builder built on top of reactive_forms.
+* Included field types: Text, TextArea, Email, Password, Phone Number, Dropdown, Radio, Checkbox, CheckText, Attachments, DateTime, and layout splitters.
+* Cleaned up lints and ready for production use.

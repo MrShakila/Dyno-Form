@@ -2,6 +2,7 @@
 
 * Added `example` app so pub.dev correctly displays the Example tab.
 * Implemented start date and end date cross-field boundaries.
+* Added extensive theming support via `DynoFormStyle` and `DynoFormTheme` to override hardcoded colors.
 
 ## 1.0.0
 

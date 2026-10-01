@@ -5,6 +5,7 @@ import 'models/dynamic_field_config.dart';
 import 'models/dynamic_field_type.dart';
 import 'fields/dynamic_fields.dart';
 import 'custom/section_title.dart';
+import 'custom/dynamic_custom_checktext_field.dart';
 
 class DynamicFormWidget extends StatefulWidget {
   final List<DynamicFieldConfig> fields;
@@ -12,11 +13,11 @@ class DynamicFormWidget extends StatefulWidget {
   final String submitButtonText;
   
   const DynamicFormWidget({
-    Key? key,
+    super.key,
     required this.fields,
     this.onSubmit,
     this.submitButtonText = 'Submit',
-  }) : super(key: key);
+  });
 
   @override
   State<DynamicFormWidget> createState() => _DynamicFormWidgetState();
@@ -53,8 +54,13 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
                    type == DynamicFieldType.number ||
                    type == DynamicFieldType.dropdown ||
                    type == DynamicFieldType.radio) {
+          final List<Validator<dynamic>> fieldValidators = [];
+          if (field.isMandatory) fieldValidators.add(Validators.required);
+          if (type == DynamicFieldType.email) fieldValidators.add(Validators.email);
+          if (type == DynamicFieldType.phoneNumber) fieldValidators.add(Validators.pattern(RegExp(r'^\+?[0-9\s]+$')));
+          
           controls[field.id.toString()] = FormControl<String>(
-            validators: field.isMandatory ? [Validators.required] : [],
+            validators: fieldValidators,
           );
         } else if (type == DynamicFieldType.attachment) {
           controls[field.id.toString()] = FormControl<List<dynamic>>(
@@ -99,6 +105,14 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
               case DynamicFieldType.checkbox:
                 fieldWidget = DynamicCheckboxField(field: field);
                 break;
+              case DynamicFieldType.checkText:
+                fieldWidget = DynamicCustomCheckTextField(
+                  formControlName: field.id.toString(),
+                  decoration: InputDecoration(
+                    labelText: field.fieldName,
+                  ),
+                );
+                break;
               case DynamicFieldType.attachment:
                 fieldWidget = DynamicAttachmentField(field: field);
                 break;
@@ -116,7 +130,7 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: fieldWidget,
             );
-          }).toList(),
+          }),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {

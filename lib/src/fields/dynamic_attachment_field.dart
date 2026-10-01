@@ -64,12 +64,12 @@ Color? getImagePickerColor(AbstractControl<dynamic> control) {
 
   // 3. Error State: Empty + Touched + Required (Error)
   if (control.hasErrors && control.touched) {
-    return Colors.redAccent.withOpacity(0.1);
+    return Colors.redAccent.withValues(alpha: 0.1);
   }
 
   // 4. Success State: Has images
   if (hasImages) {
-    return Colors.greenAccent.withOpacity(0.5);
+    return Colors.greenAccent.withValues(alpha: 0.5);
   }
 
   // 5. Default State

@@ -158,12 +158,12 @@ Color? getDynamicFillColor(AbstractControl control) {
 
   // 2. If it has errors, show Red tint
   if (control.hasErrors && control.touched) {
-    return Colors.redAccent.withOpacity(0.1);
+    return Colors.redAccent.withValues(alpha: 0.1);
   }
 
   // 3. If filled and valid, show Green tint
-  return Colors.greenAccent.withOpacity(
-    0.5,
+  return Colors.greenAccent.withValues(
+    alpha: 0.5,
   ); // Reduced opacity for better readability
 }
 
@@ -175,12 +175,12 @@ Color? getCheckboxColor(AbstractControl<dynamic> control) {
 
   // 1. Error State: Required but unchecked (and touched)
   if (control.hasErrors && control.touched) {
-    return Colors.redAccent.withOpacity(0.1);
+    return Colors.redAccent.withValues(alpha: 0.1);
   }
 
   // 2. Success State: Checked
   if (isChecked) {
-    return Colors.greenAccent.withOpacity(0.5);
+    return Colors.greenAccent.withValues(alpha: 0.5);
   }
 
   // 3. Default State: Unchecked and valid (or untouched)

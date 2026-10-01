@@ -25,6 +25,10 @@ class DynamicFieldConfig {
   final List<DynamicFieldOption>? options;
   final String? requiredFieldMessage;
   final String? placeholder;
+  final DateTime? minDate;
+  final DateTime? maxDate;
+  final String? minDateFromField;
+  final String? maxDateFromField;
 
   const DynamicFieldConfig({
     required this.id,
@@ -37,6 +41,10 @@ class DynamicFieldConfig {
     this.options,
     this.requiredFieldMessage,
     this.placeholder,
+    this.minDate,
+    this.maxDate,
+    this.minDateFromField,
+    this.maxDateFromField,
   });
 
   factory DynamicFieldConfig.fromJson(Map<String, dynamic> json) {
@@ -53,6 +61,10 @@ class DynamicFieldConfig {
           .toList(),
       requiredFieldMessage: json['requiredFieldMessage'] as String?,
       placeholder: json['placeholder'] as String?,
+      minDate: json['minDate'] != null ? DateTime.tryParse(json['minDate'].toString()) : null,
+      maxDate: json['maxDate'] != null ? DateTime.tryParse(json['maxDate'].toString()) : null,
+      minDateFromField: json['minDateFromField']?.toString(),
+      maxDateFromField: json['maxDateFromField']?.toString(),
     );
   }
 

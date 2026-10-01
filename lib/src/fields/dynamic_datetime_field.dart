@@ -13,23 +13,46 @@ class _DynamicDateTimeFieldState extends State<DynamicDateTimeField> {
   @override
   Widget build(BuildContext context) {
     final String controlName = widget.field.id.toString();
-    return ReactiveValueListenableBuilder(
-      formControlName: controlName,
-      builder: (context, control, child) {
+    return ReactiveFormConsumer(
+      builder: (context, formGroup, child) {
+        DateTime firstDate = widget.field.minDate ?? DateTime(1900);
+        DateTime lastDate = widget.field.maxDate ?? DateTime(2100);
+
+        if (widget.field.minDateFromField != null && formGroup.contains(widget.field.minDateFromField!)) {
+          final minVal = formGroup.control(widget.field.minDateFromField!).value;
+          if (minVal is DateTime) {
+            firstDate = minVal;
+          }
+        }
+
+        if (widget.field.maxDateFromField != null && formGroup.contains(widget.field.maxDateFromField!)) {
+          final maxVal = formGroup.control(widget.field.maxDateFromField!).value;
+          if (maxVal is DateTime) {
+            lastDate = maxVal;
+          }
+        }
+
+        // Prevent crashes if bounds cross (e.g. user selects invalid combinations across fields)
+        if (firstDate.isAfter(lastDate)) {
+          lastDate = firstDate;
+        }
+
+        final control = formGroup.control(controlName);
         final Color? dynamicFillColor = getDynamicFillColor(control);
+        
         return ReactiveDateTimePicker(
           formControlName: controlName,
           type: ReactiveDatePickerFieldType.date,
-
+          firstDate: firstDate,
+          lastDate: lastDate,
           decoration: InputDecoration(
             fillColor: dynamicFillColor,
-            hintStyle: TextStyle(color: Colors.grey),
+            hintStyle: const TextStyle(color: Colors.grey),
             label: Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
                     text: widget.field.fieldName,
-                    // Add your default style here if needed, e.g., style: TextStyle(color: Colors.black)
                   ),
                   if (widget.field.isMandatory)
                     const TextSpan(
@@ -39,12 +62,9 @@ class _DynamicDateTimeFieldState extends State<DynamicDateTimeField> {
                 ],
               ),
             ),
-            // helperText: widget.field.placeholder,
           ),
           validationMessages: {
-            ValidationMessage.required: (_) =>
-                // widget.field.requiredFieldMessage ??
-                ValidationMessages.requiredField,
+            ValidationMessage.required: (_) => ValidationMessages.requiredField,
           },
         );
       },

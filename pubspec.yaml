@@ -1,7 +1,7 @@
 name: form_craft
 description: "A dynamic and reactive form builder for Flutter, supporting validation, multiple input types, and robust configurations."
-version: 0.0.1
-homepage: https://github.com/MrShakila/form_craft
+version: 1.0.0
+homepage: https://github.com/MrShakila/Form-Craft
 
 environment:
   sdk: ^3.13.1

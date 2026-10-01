@@ -1,6 +1,6 @@
-# Form Craft 🛠️
+# Dyno Form 🛠️
 
-A dynamic, JSON-driven, and highly reactive form builder for Flutter. Powered by `reactive_forms`, **Form Craft** allows you to seamlessly generate complex, validated, and interactive forms from a simple list of configurations or a JSON payload.
+A dynamic, JSON-driven, and highly reactive form builder for Flutter. Powered by `reactive_forms`, **Dyno Form** allows you to seamlessly generate complex, validated, and interactive forms from a simple list of configurations or a JSON payload.
 
 ## Features ✨
 

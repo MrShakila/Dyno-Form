@@ -1,0 +1,60 @@
+[
+  {
+    "id": 1,
+    "fieldName": "Personal Information",
+    "fieldType": 18,
+    "isMandatory": false
+  },
+  {
+    "id": 2,
+    "fieldName": "Full Name",
+    "fieldType": 1,
+    "isMandatory": true,
+    "placeholder": "Enter your full name",
+    "requiredFieldMessage": "Name is required"
+  },
+  {
+    "id": 3,
+    "fieldName": "Email Address",
+    "fieldType": 11,
+    "isMandatory": true,
+    "placeholder": "example@domain.com",
+    "requiredFieldMessage": "We need your email to contact you"
+  },
+  {
+    "id": 4,
+    "fieldName": "Phone Number",
+    "fieldType": 7,
+    "isMandatory": false
+  },
+  {
+    "id": 5,
+    "fieldName": "Select Gender",
+    "fieldType": 6,
+    "isMandatory": true,
+    "options": [
+      { "label": "Male", "value": "male" },
+      { "label": "Female", "value": "female" },
+      { "label": "Other", "value": "other" }
+    ]
+  },
+  {
+    "id": 6,
+    "fieldName": "Date of Birth",
+    "fieldType": 2,
+    "isMandatory": true
+  },
+  {
+    "id": 7,
+    "fieldName": "Upload Profile Picture",
+    "fieldType": 14,
+    "isMandatory": false
+  },
+  {
+    "id": 8,
+    "fieldName": "I agree to the terms and conditions",
+    "fieldType": 10,
+    "isMandatory": true,
+    "requiredFieldMessage": "You must accept the terms"
+  }
+]

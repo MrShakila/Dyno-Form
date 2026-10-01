@@ -1,7 +1,7 @@
-name: dynamic_form
-description: "A new Flutter package project."
+name: form_craft
+description: "A dynamic and reactive form builder for Flutter, supporting validation, multiple input types, and robust configurations."
 version: 0.0.1
-homepage:
+homepage: https://github.com/MrShakila/form_craft
 
 environment:
   sdk: ^3.13.1

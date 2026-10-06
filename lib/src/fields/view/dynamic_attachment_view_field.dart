@@ -27,14 +27,14 @@ class DynamicAttachmentViewField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        _buildAttachmentView(),
+        _buildAttachmentView(context),
         const SizedBox(height: 8),
         const Divider(),
       ],
     );
   }
 
-  Widget _buildAttachmentView() {
+  Widget _buildAttachmentView(BuildContext context) {
     List<dynamic> items = [];
     if (value is List) {
       items = value;
@@ -52,15 +52,15 @@ class DynamicAttachmentViewField extends StatelessWidget {
       children: items.map((item) {
         if (item is SelectedFile) {
           if (item.file != null) {
-            return _imageContainer(Image.file(File(item.file!.path), fit: BoxFit.cover));
+            return _imageContainer(context, Image.file(File(item.file!.path), fit: BoxFit.cover));
           } else if (item.url != null) {
-            return _imageContainer(Image.network(item.url!, fit: BoxFit.cover));
+            return _imageContainer(context, Image.network(item.url!, fit: BoxFit.cover));
           }
         } else if (item is String) {
           if (item.startsWith('http')) {
-             return _imageContainer(Image.network(item, fit: BoxFit.cover));
+             return _imageContainer(context, Image.network(item, fit: BoxFit.cover));
           } else {
-             return _imageContainer(Image.file(File(item), fit: BoxFit.cover));
+             return _imageContainer(context, Image.file(File(item), fit: BoxFit.cover));
           }
         }
         return const SizedBox.shrink();
@@ -68,16 +68,55 @@ class DynamicAttachmentViewField extends StatelessWidget {
     );
   }
 
-  Widget _imageContainer(Widget image) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
+  Widget _imageContainer(BuildContext context, Widget image) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.all(10),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  InteractiveViewer(
+                    panEnabled: true,
+                    minScale: 0.5,
+                    maxScale: 4.0,
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: image,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      child: Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: image,
       ),
-      clipBehavior: Clip.antiAlias,
-      child: image,
     );
   }
 }

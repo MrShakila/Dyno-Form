@@ -100,7 +100,7 @@ class MyFormScreen extends StatelessWidget {
 
 ### Loading from JSON (Backend or Assets)
 
-If your form configurations are driven by a backend or stored locally in your assets, `form_craft` makes it easy to parse them:
+If your form configurations are driven by a backend or stored locally in your assets, `dyno form` makes it easy to parse them:
 
 ```dart
 // Fetch the config asynchronously from an asset

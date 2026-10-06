@@ -18,6 +18,7 @@ class DynamicFieldConfig {
   final int id;
   final String fieldName;
   final int fieldType;
+  final int? sequence;
   final int? validationType;
   final bool isMandatory;
   final String? stringValueList;
@@ -59,6 +60,7 @@ class DynamicFieldConfig {
     required this.id,
     required this.fieldName,
     required this.fieldType,
+    this.sequence,
     this.validationType,
     this.isMandatory = false,
     this.stringValueList,
@@ -92,6 +94,7 @@ class DynamicFieldConfig {
       id: json['id'] as int,
       fieldName: json['fieldName'] as String,
       fieldType: json['fieldType'] as int,
+      sequence: json['sequence'] as int?,
       validationType: json['validationType'] as int?,
       isMandatory: json['isMandatory'] ?? false,
       stringValueList: json['stringValueList'] as String?,

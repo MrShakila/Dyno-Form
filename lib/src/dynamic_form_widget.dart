@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:reactive_image_picker/reactive_image_picker.dart';
 
 import 'models/dynamic_field_config.dart';
 import 'models/dynamic_field_type.dart';
@@ -40,7 +41,7 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
     for (final field in widget.fields) {
       final type = DynamicFieldType.tryFromId(field.fieldType);
       if (type?.isInputElement == true) {
-        if (type == DynamicFieldType.checkbox || type == DynamicFieldType.checkText) {
+        if (type == DynamicFieldType.checkbox) {
           controls[field.id.toString()] = FormControl<bool>(
             validators: field.isMandatory ? [Validators.requiredTrue] : [],
           );
@@ -56,7 +57,8 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
                    type == DynamicFieldType.vehicleNumber ||
                    type == DynamicFieldType.number ||
                    type == DynamicFieldType.dropdown ||
-                   type == DynamicFieldType.radio) {
+                   type == DynamicFieldType.radio ||
+                   type == DynamicFieldType.checkText) {
           final List<Validator<dynamic>> fieldValidators = [];
           if (field.isMandatory) fieldValidators.add(Validators.required);
           if (type == DynamicFieldType.email) fieldValidators.add(Validators.email);
@@ -66,7 +68,7 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
             validators: fieldValidators,
           );
         } else if (type == DynamicFieldType.attachment) {
-          controls[field.id.toString()] = FormControl<List<dynamic>>(
+          controls[field.id.toString()] = FormControl<List<SelectedFile>>(
             validators: field.isMandatory ? [Validators.required] : [],
             value: [],
           );

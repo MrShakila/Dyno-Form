@@ -27,7 +27,6 @@ class _DynamicAttachmentFieldState extends State<DynamicAttachmentField> {
           formControlName: controlName,
           decoration: InputDecoration(
             fillColor: dynamicFillColor,
-
             hintStyle: const TextStyle(color: Colors.grey),
             label: Text.rich(
               TextSpan(

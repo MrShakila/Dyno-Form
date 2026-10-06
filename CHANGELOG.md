@@ -1,3 +1,10 @@
+## 1.2.0
+
+* Introduced `DynamicFormViewWidget` for rendering read-only dynamic forms based on field type and submitted data.
+* Extracted individual view widgets (`DynamicTextViewField`, `DynamicCheckboxViewField`, `DynamicAttachmentViewField`) for modularity and maintainability.
+* Improved attachment field parsing (handles local paths, network URLs, and `SelectedFile` types seamlessly with built-in interactive preview dialogs).
+* Updated `README.md` to reference `dyno_form` correctly.
+
 ## 1.0.3
 
 * Added `example` app so pub.dev correctly displays the Example tab.

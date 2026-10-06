@@ -4,6 +4,7 @@ import 'package:reactive_image_picker/reactive_image_picker.dart';
 
 import 'models/dynamic_field_config.dart';
 import 'models/dynamic_field_type.dart';
+import 'dynamic_field_validation_type.dart';
 import 'fields/dynamic_fields.dart';
 import 'custom/section_title.dart';
 import 'custom/dynamic_custom_checktext_field.dart';
@@ -61,15 +62,36 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
                    type == DynamicFieldType.checkText) {
           final List<Validator<dynamic>> fieldValidators = [];
           if (field.isMandatory) fieldValidators.add(Validators.required);
-          if (type == DynamicFieldType.email) fieldValidators.add(Validators.email);
-          if (type == DynamicFieldType.phoneNumber) fieldValidators.add(Validators.pattern(RegExp(r'^\+?[0-9\s]+$')));
+          
+          final valType = DynamicFieldValidationType.tryFromType(field.validationType);
+          if (valType == DynamicFieldValidationType.email) fieldValidators.add(Validators.email);
+          if (valType == DynamicFieldValidationType.phoneNumber || field.isSriLankanPhone) {
+            fieldValidators.add(Validators.pattern(RegExp(r'^(?:\+94|0)?(?:7\d|11)\d{7}$')));
+          }
+          if (valType == DynamicFieldValidationType.vehicleNumber || field.isSriLankanVehicle) {
+            fieldValidators.add(Validators.pattern(RegExp(r'^[A-Za-z]{2,3}-\d{4}$')));
+          }
+          if (valType == DynamicFieldValidationType.nic || field.isSriLankanNIC) {
+            fieldValidators.add(Validators.pattern(RegExp(r'^(?:19|20)?\d{2}[0-35-8]\d{2}\d{4}[vVxX]?$')));
+          }
+          
+          if (field.minLength != null) fieldValidators.add(Validators.minLength(field.minLength!));
+          if (field.maxLength != null) fieldValidators.add(Validators.maxLength(field.maxLength!));
+          if (field.regexPattern != null && field.regexPattern!.isNotEmpty) {
+            fieldValidators.add(Validators.pattern(RegExp(field.regexPattern!)));
+          }
           
           controls[field.id.toString()] = FormControl<String>(
             validators: fieldValidators,
           );
         } else if (type == DynamicFieldType.attachment) {
+          final List<Validator<dynamic>> attachmentValidators = [];
+          if (field.isMandatory) attachmentValidators.add(Validators.required);
+          if (field.minAttachments != null) attachmentValidators.add(Validators.minLength(field.minAttachments!));
+          if (field.maxAttachments != null) attachmentValidators.add(Validators.maxLength(field.maxAttachments!));
+          
           controls[field.id.toString()] = FormControl<List<SelectedFile>>(
-            validators: field.isMandatory ? [Validators.required] : [],
+            validators: attachmentValidators,
             value: [],
           );
         } else {

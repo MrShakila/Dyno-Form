@@ -29,6 +29,31 @@ class DynamicFieldConfig {
   final DateTime? maxDate;
   final String? minDateFromField;
   final String? maxDateFromField;
+  
+  // Advanced Validations
+  final int? minLength;
+  final int? maxLength;
+  final num? minValue;
+  final num? maxValue;
+  final String? regexPattern;
+  
+  // Financial & Formatting
+  final bool isCurrency;
+  final bool allowNegative;
+  
+  // Identity & Regional
+  final bool isSriLankanNIC;
+  final bool isSriLankanPhone;
+  final bool isSriLankanVehicle;
+  
+  // Media Limits
+  final int? minAttachments;
+  final int? maxAttachments;
+  
+  // Cross-field & Logic
+  final String? matchFieldName;
+  final String? conditionalShowFieldName;
+  final dynamic conditionalShowFieldValue;
 
   const DynamicFieldConfig({
     required this.id,
@@ -45,6 +70,21 @@ class DynamicFieldConfig {
     this.maxDate,
     this.minDateFromField,
     this.maxDateFromField,
+    this.minLength,
+    this.maxLength,
+    this.minValue,
+    this.maxValue,
+    this.regexPattern,
+    this.isCurrency = false,
+    this.allowNegative = true,
+    this.isSriLankanNIC = false,
+    this.isSriLankanPhone = false,
+    this.isSriLankanVehicle = false,
+    this.minAttachments,
+    this.maxAttachments,
+    this.matchFieldName,
+    this.conditionalShowFieldName,
+    this.conditionalShowFieldValue,
   });
 
   factory DynamicFieldConfig.fromJson(Map<String, dynamic> json) {
@@ -65,6 +105,21 @@ class DynamicFieldConfig {
       maxDate: json['maxDate'] != null ? DateTime.tryParse(json['maxDate'].toString()) : null,
       minDateFromField: json['minDateFromField']?.toString(),
       maxDateFromField: json['maxDateFromField']?.toString(),
+      minLength: json['minLength'] as int?,
+      maxLength: json['maxLength'] as int?,
+      minValue: json['minValue'] as num?,
+      maxValue: json['maxValue'] as num?,
+      regexPattern: json['regexPattern'] as String?,
+      isCurrency: json['isCurrency'] ?? false,
+      allowNegative: json['allowNegative'] ?? true,
+      isSriLankanNIC: json['isSriLankanNIC'] ?? false,
+      isSriLankanPhone: json['isSriLankanPhone'] ?? false,
+      isSriLankanVehicle: json['isSriLankanVehicle'] ?? false,
+      minAttachments: json['minAttachments'] as int?,
+      maxAttachments: json['maxAttachments'] as int?,
+      matchFieldName: json['matchFieldName'] as String?,
+      conditionalShowFieldName: json['conditionalShowFieldName'] as String?,
+      conditionalShowFieldValue: json['conditionalShowFieldValue'],
     );
   }
 

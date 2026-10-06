@@ -5,7 +5,8 @@ enum DynamicFieldValidationType {
   phoneNumber(3),
   vehicleNumber(4),
   minLength(5),
-  maxLength(6);
+  maxLength(6),
+  nic(7);
 
   final int _type;
   const DynamicFieldValidationType(this._type);
@@ -50,6 +51,8 @@ extension DynamicFieldValidationTypeExtension on DynamicFieldValidationType {
         return 'Minimum Length';
       case DynamicFieldValidationType.maxLength:
         return 'Maximum Length';
+      case DynamicFieldValidationType.nic:
+        return 'National Identity Card (NIC)';
     }
   }
 
@@ -68,6 +71,8 @@ extension DynamicFieldValidationTypeExtension on DynamicFieldValidationType {
         return 'The value must be at least {value} characters long';
       case DynamicFieldValidationType.maxLength:
         return 'The value must be at most {value} characters long';
+      case DynamicFieldValidationType.nic:
+        return 'Please enter a valid NIC number';
     }
   }
 }

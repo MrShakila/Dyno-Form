@@ -16,22 +16,14 @@ enum DynamicFieldType {
   password(15),
   pageBreak(16),
   // smileyType(17),
-  sectionSplitter(18);
+  sectionSplitter(18),
+  table(19),
+  heading(20),
+  consent(21);
 
   final int _id;
   const DynamicFieldType(this._id);
   int get id => _id;
-
-  /// Finds the enum value associated with the given [id].
-  ///
-  /// Throws an [ArgumentError] if no matching enum value is found.
-  // static DynamicFieldType fromId(int id) {
-  //   return DynamicFieldType.values.firstWhere(
-  //     (type) => type.id == id,
-  //     orElse: () =>
-  //         throw ArgumentError('No DynamicFieldType found for ID: $id'),
-  //   );
-  // }
 
   /// Safely finds the enum value associated with the given [id].
   ///
@@ -43,6 +35,52 @@ enum DynamicFieldType {
       }
     }
     return null; // No match found
+  }
+
+  /// Finds or maps a string representation (e.g. from JSON) to a [DynamicFieldType].
+  static DynamicFieldType fromString(String type) {
+    switch (type.toLowerCase().trim()) {
+      case 'text':
+        return DynamicFieldType.text;
+      case 'textarea':
+        return DynamicFieldType.textArea;
+      case 'date':
+      case 'datetime':
+        return DynamicFieldType.dateTime;
+      case 'number':
+        return DynamicFieldType.number;
+      case 'dropdown':
+      case 'select':
+        return DynamicFieldType.dropdown;
+      case 'phone':
+      case 'phonenumber':
+      case 'mobileverification':
+        return DynamicFieldType.phoneNumber;
+      case 'email':
+        return DynamicFieldType.email;
+      case 'checkbox':
+        return DynamicFieldType.checkbox;
+      case 'customerconsent':
+      case 'consent':
+        return DynamicFieldType.consent;
+      case 'radio':
+        return DynamicFieldType.radio;
+      case 'image':
+      case 'attachment':
+      case 'file':
+        return DynamicFieldType.attachment;
+      case 'pagebreak':
+        return DynamicFieldType.pageBreak;
+      case 'heading':
+        return DynamicFieldType.heading;
+      case 'section':
+      case 'divider':
+        return DynamicFieldType.sectionSplitter;
+      case 'table':
+        return DynamicFieldType.table;
+      default:
+        return DynamicFieldType.text;
+    }
   }
 }
 
@@ -73,18 +111,20 @@ extension DynamicFieldTypeExtension on DynamicFieldType {
         return 'Email';
       case DynamicFieldType.vehicleNumber:
         return 'Vehicle Number';
-      // case DynamicFieldType.document:
-      //   return 'Document Upload';
       case DynamicFieldType.attachment:
         return 'File Attachment';
       case DynamicFieldType.password:
         return 'Password';
       case DynamicFieldType.pageBreak:
         return 'Page Break';
-      // case DynamicFieldType.smileyType:
-      //   return 'Smiley Rating';
       case DynamicFieldType.sectionSplitter:
         return 'Section Splitter';
+      case DynamicFieldType.table:
+        return 'Table';
+      case DynamicFieldType.heading:
+        return 'Heading';
+      case DynamicFieldType.consent:
+        return 'Consent';
     }
   }
 
@@ -94,6 +134,7 @@ extension DynamicFieldTypeExtension on DynamicFieldType {
     switch (this) {
       case DynamicFieldType.pageBreak:
       case DynamicFieldType.sectionSplitter:
+      case DynamicFieldType.heading:
         return false;
       default:
         return true; // All other types collect data

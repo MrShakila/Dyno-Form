@@ -25,7 +25,7 @@ class DynamicFormViewWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: fields.map((field) {
           final type = DynamicFieldType.tryFromId(field.fieldType);
-          final value = formData[field.id.toString()];
+          final value = formData[field.id.toString()] ?? (field.dataKey != null ? formData[field.dataKey!] : null);
 
           if (type == DynamicFieldType.pageBreak) {
             return const SizedBox(height: 16);

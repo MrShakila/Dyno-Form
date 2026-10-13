@@ -19,7 +19,8 @@ class DynamicFormWidget extends StatefulWidget {
   final bool showDraftButton;
   final void Function(Map<String, dynamic>)? onDraftSubmit;
   final String draftButtonText;
-  
+  final Map<String, dynamic>? initialValues;
+
   const DynamicFormWidget({
     super.key,
     required this.fields,
@@ -30,6 +31,7 @@ class DynamicFormWidget extends StatefulWidget {
     this.showDraftButton = false,
     this.onDraftSubmit,
     this.draftButtonText = 'Save Draft',
+    this.initialValues,
   });
 
   @override
@@ -45,23 +47,28 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
   @override
   void initState() {
     super.initState();
-    
+
     _sortedFields = List.from(widget.fields);
-    _sortedFields.sort((a, b) => (a.sequence ?? 9999).compareTo(b.sequence ?? 9999));
-    
+    _sortedFields.sort(
+      (a, b) => (a.sequence ?? 9999).compareTo(b.sequence ?? 9999),
+    );
+
     final List<Validator<dynamic>> groupValidators = [];
     for (final field in _sortedFields) {
       if (field.matchFieldName != null && field.matchFieldName!.isNotEmpty) {
-        groupValidators.add(Validators.mustMatch(field.matchFieldName!, field.id.toString()));
+        groupValidators.add(
+          Validators.mustMatch(field.matchFieldName!, field.id.toString()),
+        );
       }
     }
-    
+
     form = FormGroup(_generateFormFields(), validators: groupValidators);
-    
+
     _pages = [];
     List<DynamicFieldConfig> currentPage = [];
     for (final field in _sortedFields) {
-      if (DynamicFieldType.tryFromId(field.fieldType) == DynamicFieldType.pageBreak) {
+      if (DynamicFieldType.tryFromId(field.fieldType) ==
+          DynamicFieldType.pageBreak) {
         if (currentPage.isNotEmpty) {
           _pages.add(currentPage);
           currentPage = [];
@@ -74,27 +81,33 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
       _pages.add(currentPage);
     }
     if (_pages.isEmpty) _pages.add([]);
-    
+
     // Setup Conditional Logic Listeners
     for (final field in _sortedFields) {
-      if (field.conditionalShowFieldName != null && field.conditionalShowFieldName!.isNotEmpty) {
-        final parentControl = form.control(field.conditionalShowFieldName!);
-        final thisControl = form.control(field.id.toString());
-        
-        // Initial check
-        if (parentControl.value?.toString() != field.conditionalShowFieldValue?.toString()) {
-          thisControl.markAsDisabled();
-        }
-        
-        // Listen for future changes
-        parentControl.valueChanges.listen((value) {
-          if (value?.toString() == field.conditionalShowFieldValue?.toString()) {
-            thisControl.markAsEnabled();
-          } else {
+      if (field.conditionalShowFieldName != null &&
+          field.conditionalShowFieldName!.isNotEmpty) {
+        if (form.contains(field.conditionalShowFieldName!) &&
+            form.contains(field.id.toString())) {
+          final parentControl = form.control(field.conditionalShowFieldName!);
+          final thisControl = form.control(field.id.toString());
+
+          // Initial check
+          if (parentControl.value?.toString() !=
+              field.conditionalShowFieldValue?.toString()) {
             thisControl.markAsDisabled();
-            thisControl.value = null; // Clear value when hidden
           }
-        });
+
+          // Listen for future changes
+          parentControl.valueChanges.listen((value) {
+            if (value?.toString() ==
+                field.conditionalShowFieldValue?.toString()) {
+              thisControl.markAsEnabled();
+            } else {
+              thisControl.markAsDisabled();
+              thisControl.value = null; // Clear value when hidden
+            }
+          });
+        }
       }
     }
   }
@@ -105,14 +118,31 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
     for (var field in _pages[_currentStep]) {
       final type = DynamicFieldType.tryFromId(field.fieldType);
       if (type?.isInputElement == true) {
-        final control = form.control(field.id.toString());
-        if (control.invalid) {
-          control.markAsTouched();
-          isValid = false;
+        if (form.contains(field.id.toString())) {
+          final control = form.control(field.id.toString());
+          if (control.invalid) {
+            control.markAsTouched();
+            isValid = false;
+          }
         }
       }
     }
     return isValid;
+  }
+
+  Map<String, dynamic> _getResolvedFormValue() {
+    final Map<String, dynamic> resolved = {};
+    for (var field in _sortedFields) {
+      final controlName = field.id.toString();
+      if (form.contains(controlName)) {
+        final val = form.control(controlName).value;
+        resolved[controlName] = val;
+        if (field.dataKey != null && field.dataKey!.isNotEmpty) {
+          resolved[field.dataKey!] = val;
+        }
+      }
+    }
+    return resolved;
   }
 
   Map<String, FormControl> _generateFormFields() {
@@ -120,54 +150,104 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
     for (final field in _sortedFields) {
       final type = DynamicFieldType.tryFromId(field.fieldType);
       if (type?.isInputElement == true) {
-        if (type == DynamicFieldType.checkbox) {
+        final rawVal = widget.initialValues != null
+            ? (widget.initialValues![field.id.toString()] ??
+                (field.dataKey != null ? widget.initialValues![field.dataKey!] : null))
+            : null;
+
+        if (type == DynamicFieldType.checkbox ||
+            type == DynamicFieldType.consent) {
+          final bool? boolVal = rawVal is bool
+              ? rawVal
+              : (rawVal == 'true' || rawVal == 1
+                  ? true
+                  : (rawVal == 'false' || rawVal == 0 ? false : null));
           controls[field.id.toString()] = FormControl<bool>(
+            value: boolVal,
             validators: field.isMandatory ? [Validators.requiredTrue] : [],
           );
         } else if (type == DynamicFieldType.dateTime) {
+          DateTime? dateVal;
+          if (rawVal is DateTime) {
+            dateVal = rawVal;
+          } else if (rawVal is String) {
+            dateVal = DateTime.tryParse(rawVal);
+          }
           controls[field.id.toString()] = FormControl<DateTime>(
+            value: dateVal,
             validators: field.isMandatory ? [Validators.required] : [],
           );
-        } else if (type == DynamicFieldType.text || 
-                   type == DynamicFieldType.textArea || 
-                   type == DynamicFieldType.email || 
-                   type == DynamicFieldType.password || 
-                   type == DynamicFieldType.phoneNumber ||
-                   type == DynamicFieldType.vehicleNumber ||
-                   type == DynamicFieldType.number ||
-                   type == DynamicFieldType.dropdown ||
-                   type == DynamicFieldType.radio ||
-                   type == DynamicFieldType.checkText) {
+        } else if (type == DynamicFieldType.text ||
+            type == DynamicFieldType.textArea ||
+            type == DynamicFieldType.email ||
+            type == DynamicFieldType.password ||
+            type == DynamicFieldType.phoneNumber ||
+            type == DynamicFieldType.vehicleNumber ||
+            type == DynamicFieldType.number ||
+            type == DynamicFieldType.dropdown ||
+            type == DynamicFieldType.radio ||
+            type == DynamicFieldType.checkText ||
+            type == DynamicFieldType.table) {
           final List<Validator<dynamic>> fieldValidators = [];
           if (field.isMandatory) fieldValidators.add(Validators.required);
-          
-          final valType = DynamicFieldValidationType.tryFromType(field.validationType);
-          if (valType == DynamicFieldValidationType.email) fieldValidators.add(Validators.email);
-          if (valType == DynamicFieldValidationType.phoneNumber || field.isSriLankanPhone) {
-            fieldValidators.add(Validators.pattern(RegExp(r'^(?:\+94|0)?(?:7\d|11)\d{7}$')));
+
+          final valType = DynamicFieldValidationType.tryFromType(
+            field.validationType,
+          );
+          if (valType == DynamicFieldValidationType.email) {
+            fieldValidators.add(Validators.email);
           }
-          if (valType == DynamicFieldValidationType.vehicleNumber || field.isSriLankanVehicle) {
-            fieldValidators.add(Validators.pattern(RegExp(r'^[A-Za-z]{2,3}-\d{4}$')));
+          if (valType == DynamicFieldValidationType.phoneNumber ||
+              field.isSriLankanPhone) {
+            fieldValidators.add(
+              Validators.pattern(RegExp(r'^(?:\+94|0)?(?:7\d|11)\d{7}$')),
+            );
           }
-          if (valType == DynamicFieldValidationType.nic || field.isSriLankanNIC) {
-            fieldValidators.add(Validators.pattern(RegExp(r'^(?:19|20)?\d{2}[0-35-8]\d{2}\d{4}[vVxX]?$')));
+          if (valType == DynamicFieldValidationType.vehicleNumber ||
+              field.isSriLankanVehicle) {
+            fieldValidators.add(
+              Validators.pattern(RegExp(r'^[A-Za-z]{2,3}-\d{4}$')),
+            );
           }
-          
-          if (field.minLength != null) fieldValidators.add(Validators.minLength(field.minLength!));
-          if (field.maxLength != null) fieldValidators.add(Validators.maxLength(field.maxLength!));
+          if (valType == DynamicFieldValidationType.nic ||
+              field.isSriLankanNIC) {
+            fieldValidators.add(
+              Validators.pattern(
+                RegExp(r'^(?:19|20)?\d{2}[0-35-8]\d{2}\d{4}[vVxX]?$'),
+              ),
+            );
+          }
+
+          if (field.minLength != null) {
+            fieldValidators.add(Validators.minLength(field.minLength!));
+          }
+          if (field.maxLength != null) {
+            fieldValidators.add(Validators.maxLength(field.maxLength!));
+          }
           if (field.regexPattern != null && field.regexPattern!.isNotEmpty) {
-            fieldValidators.add(Validators.pattern(RegExp(field.regexPattern!)));
+            fieldValidators.add(
+              Validators.pattern(RegExp(field.regexPattern!)),
+            );
           }
-          
+
           controls[field.id.toString()] = FormControl<String>(
+            value: rawVal?.toString(),
             validators: fieldValidators,
           );
         } else if (type == DynamicFieldType.attachment) {
           final List<Validator<dynamic>> attachmentValidators = [];
           if (field.isMandatory) attachmentValidators.add(Validators.required);
-          if (field.minAttachments != null) attachmentValidators.add(Validators.minLength(field.minAttachments!));
-          if (field.maxAttachments != null) attachmentValidators.add(Validators.maxLength(field.maxAttachments!));
-          
+          if (field.minAttachments != null) {
+            attachmentValidators.add(
+              Validators.minLength(field.minAttachments!),
+            );
+          }
+          if (field.maxAttachments != null) {
+            attachmentValidators.add(
+              Validators.maxLength(field.maxAttachments!),
+            );
+          }
+
           controls[field.id.toString()] = FormControl<List<SelectedFile>>(
             validators: attachmentValidators,
             value: [],
@@ -184,8 +264,10 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final fieldsToRender = widget.enableStepper ? _pages[_currentStep] : _sortedFields;
-    
+    final fieldsToRender = widget.enableStepper
+        ? _pages[_currentStep]
+        : _sortedFields;
+
     return DynoFormTheme(
       style: widget.style ?? const DynoFormStyle(),
       child: Builder(
@@ -201,16 +283,20 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
                     backgroundColor: Colors.grey[300],
                   ),
                   const SizedBox(height: 16),
-                  Text('Step ${_currentStep + 1} of ${_pages.length}', style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    'Step ${_currentStep + 1} of ${_pages.length}',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 16),
                 ],
                 ...fieldsToRender.map((field) {
                   final type = DynamicFieldType.tryFromId(field.fieldType);
-                  
+
                   if (type == DynamicFieldType.pageBreak) {
                     return const SizedBox.shrink();
                   }
-                  if (type == DynamicFieldType.sectionSplitter) {
+                  if (type == DynamicFieldType.sectionSplitter ||
+                      type == DynamicFieldType.heading) {
                     return SectionTitle(field.fieldName);
                   }
 
@@ -223,14 +309,13 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
                       fieldWidget = DynamicRadioField(field: field);
                       break;
                     case DynamicFieldType.checkbox:
+                    case DynamicFieldType.consent:
                       fieldWidget = DynamicCheckboxField(field: field);
                       break;
                     case DynamicFieldType.checkText:
                       fieldWidget = DynamicCustomCheckTextField(
                         formControlName: field.id.toString(),
-                        decoration: InputDecoration(
-                          labelText: field.fieldName,
-                        ),
+                        decoration: InputDecoration(labelText: field.fieldName),
                       );
                       break;
                     case DynamicFieldType.attachment:
@@ -246,11 +331,14 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
                       );
                   }
 
-                  if (field.conditionalShowFieldName != null && field.conditionalShowFieldName!.isNotEmpty) {
+                  if (field.conditionalShowFieldName != null &&
+                      field.conditionalShowFieldName!.isNotEmpty) {
                     return ReactiveValueListenableBuilder<dynamic>(
                       formControlName: field.conditionalShowFieldName!,
                       builder: (context, control, child) {
-                        final isVisible = control.value?.toString() == field.conditionalShowFieldValue?.toString();
+                        final isVisible =
+                            control.value?.toString() ==
+                            field.conditionalShowFieldValue?.toString();
                         if (!isVisible) return const SizedBox.shrink();
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -271,13 +359,14 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
               ],
             ),
           );
-        }
+        },
       ),
     );
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    final isLastStep = !widget.enableStepper || _currentStep == _pages.length - 1;
+    final isLastStep =
+        !widget.enableStepper || _currentStep == _pages.length - 1;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -293,18 +382,18 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
           )
         else
           const SizedBox.shrink(),
-          
+
         Row(
           children: [
             if (widget.showDraftButton)
               TextButton(
                 onPressed: () {
-                  widget.onDraftSubmit?.call(form.value);
+                  widget.onDraftSubmit?.call(_getResolvedFormValue());
                 },
                 child: Text(widget.draftButtonText),
               ),
             if (widget.showDraftButton) const SizedBox(width: 8),
-            
+
             if (!isLastStep)
               ElevatedButton(
                 onPressed: () {
@@ -321,11 +410,13 @@ class _DynamicFormWidgetState extends State<DynamicFormWidget> {
                 builder: (context, form, child) {
                   return ElevatedButton(
                     style: DynoFormTheme.of(context).submitButtonStyle,
-                    onPressed: form.valid
-                        ? () {
-                            widget.onSubmit?.call(form.value);
-                          }
-                        : null,
+                    onPressed: () {
+                      if (form.valid) {
+                        widget.onSubmit?.call(_getResolvedFormValue());
+                      } else {
+                        form.markAllAsTouched();
+                      }
+                    },
                     child: Text(widget.submitButtonText),
                   );
                 },

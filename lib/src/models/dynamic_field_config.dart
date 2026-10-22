@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:flutter/services.dart';
+
 import 'dynamic_field_type.dart';
 
 class DynamicFieldOption {
@@ -101,13 +103,17 @@ class DynamicFieldConfig {
   });
 
   /// Helper getter returning integer ID for backward compatibility
-  int get intId => id is int ? id as int : (int.tryParse(id.toString()) ?? id.hashCode);
+  int get intId =>
+      id is int ? id as int : (int.tryParse(id.toString()) ?? id.hashCode);
 
   /// Strips HTML tags from formatted strings (e.g., `<b>Header</b>` -> `Header`).
   static String stripHtml(String? text) {
     if (text == null || text.isEmpty) return '';
     return text
-        .replaceAll(RegExp(r'<[^>]*>', multiLine: true, caseSensitive: false), '')
+        .replaceAll(
+          RegExp(r'<[^>]*>', multiLine: true, caseSensitive: false),
+          '',
+        )
         .replaceAll('&amp;', '&')
         .replaceAll('&nbsp;', ' ')
         .replaceAll('&lt;', '<')
@@ -119,10 +125,15 @@ class DynamicFieldConfig {
 
   factory DynamicFieldConfig.fromJson(Map<String, dynamic> json) {
     // 1. Resolve ID (String or int)
-    final dynamic resolvedId = json['id'] ?? json['dataKey'] ?? json['name'] ?? DateTime.now().millisecondsSinceEpoch;
+    final dynamic resolvedId =
+        json['id'] ??
+        json['dataKey'] ??
+        json['name'] ??
+        DateTime.now().millisecondsSinceEpoch;
 
     // 2. Resolve Field Name / Label (with HTML cleanup)
-    String rawLabel = (json['fieldName'] ?? json['label'] ?? json['name'] ?? '').toString();
+    String rawLabel = (json['fieldName'] ?? json['label'] ?? json['name'] ?? '')
+        .toString();
     final cleanLabel = stripHtml(rawLabel);
     final fieldName = cleanLabel.isNotEmpty ? cleanLabel : 'Field';
 
@@ -161,10 +172,16 @@ class DynamicFieldConfig {
       placeholder: json['placeholder'] as String?,
       dataKey: json['dataKey']?.toString(),
       description: json['description']?.toString(),
-      style: json['style'] is Map<String, dynamic> ? json['style'] as Map<String, dynamic> : null,
+      style: json['style'] is Map<String, dynamic>
+          ? json['style'] as Map<String, dynamic>
+          : null,
       rawConfig: json,
-      minDate: json['minDate'] != null ? DateTime.tryParse(json['minDate'].toString()) : null,
-      maxDate: json['maxDate'] != null ? DateTime.tryParse(json['maxDate'].toString()) : null,
+      minDate: json['minDate'] != null
+          ? DateTime.tryParse(json['minDate'].toString())
+          : null,
+      maxDate: json['maxDate'] != null
+          ? DateTime.tryParse(json['maxDate'].toString())
+          : null,
       minDateFromField: json['minDateFromField']?.toString(),
       maxDateFromField: json['maxDateFromField']?.toString(),
       minLength: json['minLength'] as int?,
@@ -175,7 +192,9 @@ class DynamicFieldConfig {
       isCurrency: json['isCurrency'] ?? false,
       allowNegative: json['allowNegative'] ?? true,
       isSriLankanNIC: json['isSriLankanNIC'] ?? false,
-      isSriLankanPhone: json['isSriLankanPhone'] ?? (resolvedType == DynamicFieldType.phoneNumber.id),
+      isSriLankanPhone:
+          json['isSriLankanPhone'] ??
+          (resolvedType == DynamicFieldType.phoneNumber.id),
       isSriLankanVehicle: json['isSriLankanVehicle'] ?? false,
       minAttachments: json['minAttachments'] as int?,
       maxAttachments: json['maxAttachments'] as int?,
@@ -186,11 +205,14 @@ class DynamicFieldConfig {
   }
 
   /// Parses a complete widget envelope or fields list into a list of [DynamicFieldConfig] items.
-  static List<DynamicFieldConfig> fromWidgetJson(Map<String, dynamic> widgetJson) {
+  static List<DynamicFieldConfig> fromWidgetJson(
+    Map<String, dynamic> widgetJson,
+  ) {
     List<dynamic>? fields;
     if (widgetJson['fields'] is List) {
       fields = widgetJson['fields'] as List;
-    } else if (widgetJson['json'] is Map && (widgetJson['json'] as Map)['fields'] is List) {
+    } else if (widgetJson['json'] is Map &&
+        (widgetJson['json'] as Map)['fields'] is List) {
       fields = (widgetJson['json'] as Map)['fields'] as List;
     }
 
@@ -215,24 +237,35 @@ class DynamicFieldConfig {
         final columnPairs = tableConfig['columnPairs'] as List<dynamic>?;
         final cellOptions = tableConfig['cellOptions'] as Map<String, dynamic>?;
         final cellDate = tableConfig['cellDate'] as Map<String, dynamic>?;
-        final cellValidation = tableConfig['cellValidation'] as Map<String, dynamic>?;
+        final cellValidation =
+            tableConfig['cellValidation'] as Map<String, dynamic>?;
 
-        if (rows != null && rows.isNotEmpty && columnPairs != null && columnPairs.isNotEmpty) {
+        if (rows != null &&
+            rows.isNotEmpty &&
+            columnPairs != null &&
+            columnPairs.isNotEmpty) {
           final tableLabel = stripHtml(raw['label']?.toString());
           if (tableLabel.isNotEmpty && tableLabel.toLowerCase() != 'table') {
-            result.add(DynamicFieldConfig(
-              id: 'sec_${raw['id'] ?? syntheticIndex++}',
-              fieldName: tableLabel,
-              fieldType: DynamicFieldType.sectionSplitter.id,
-              sequence: (raw['order'] as int? ?? syntheticIndex++) * 100,
-            ));
+            result.add(
+              DynamicFieldConfig(
+                id: 'sec_${raw['id'] ?? syntheticIndex++}',
+                fieldName: tableLabel,
+                fieldType: DynamicFieldType.sectionSplitter.id,
+                sequence: (raw['order'] as int? ?? syntheticIndex++) * 100,
+              ),
+            );
           }
 
           for (int r = 0; r < rows.length; r++) {
-            final rowMap = rows[r] is Map<String, dynamic> ? rows[r] as Map<String, dynamic> : null;
+            final rowMap = rows[r] is Map<String, dynamic>
+                ? rows[r] as Map<String, dynamic>
+                : null;
             if (rowMap == null) continue;
 
-            final keyMap = (rowDataKeys != null && r < rowDataKeys.length && rowDataKeys[r] is Map<String, dynamic>)
+            final keyMap =
+                (rowDataKeys != null &&
+                    r < rowDataKeys.length &&
+                    rowDataKeys[r] is Map<String, dynamic>)
                 ? rowDataKeys[r] as Map<String, dynamic>
                 : null;
 
@@ -247,25 +280,37 @@ class DynamicFieldConfig {
               final label = stripHtml(rawLabel);
               if (label.isEmpty) continue;
 
-              final dataKey = keyMap != null ? keyMap[labelColId]?.toString() : null;
+              final dataKey = keyMap != null
+                  ? keyMap[labelColId]?.toString()
+                  : null;
               final cellKey = '$r-$valColId';
 
               int fType = DynamicFieldType.text.id;
               List<DynamicFieldOption>? options;
               bool isPhone = false;
 
-              if (cellOptions != null && cellOptions[cellKey] is Map<String, dynamic>) {
-                final optList = cellOptions[cellKey]['options'] as List<dynamic>?;
+              if (cellOptions != null &&
+                  cellOptions[cellKey] is Map<String, dynamic>) {
+                final optList =
+                    cellOptions[cellKey]['options'] as List<dynamic>?;
                 if (optList != null && optList.isNotEmpty) {
                   fType = DynamicFieldType.dropdown.id;
-                  options = optList.map((o) => DynamicFieldOption(label: o.toString(), value: o.toString())).toList();
+                  options = optList
+                      .map(
+                        (o) => DynamicFieldOption(
+                          label: o.toString(),
+                          value: o.toString(),
+                        ),
+                      )
+                      .toList();
                 }
               }
 
               if (fType == DynamicFieldType.text.id) {
                 if (cellDate != null && cellDate[cellKey] != null) {
                   fType = DynamicFieldType.dateTime.id;
-                } else if (cellValidation != null && cellValidation[cellKey] is Map<String, dynamic>) {
+                } else if (cellValidation != null &&
+                    cellValidation[cellKey] is Map<String, dynamic>) {
                   final kind = cellValidation[cellKey]['kind']?.toString();
                   if (kind == 'number') {
                     fType = DynamicFieldType.number.id;
@@ -276,16 +321,19 @@ class DynamicFieldConfig {
                 }
               }
 
-              result.add(DynamicFieldConfig(
-                id: dataKey ?? '${raw['id']}_${r}_$valColId',
-                fieldName: label,
-                fieldType: fType,
-                dataKey: dataKey,
-                sequence: (raw['order'] as int? ?? syntheticIndex++) * 100 + r * 10,
-                options: options,
-                isSriLankanPhone: isPhone,
-                isMandatory: false,
-              ));
+              result.add(
+                DynamicFieldConfig(
+                  id: dataKey ?? '${raw['id']}_${r}_$valColId',
+                  fieldName: label,
+                  fieldType: fType,
+                  dataKey: dataKey,
+                  sequence:
+                      (raw['order'] as int? ?? syntheticIndex++) * 100 + r * 10,
+                  options: options,
+                  isSriLankanPhone: isPhone,
+                  isMandatory: false,
+                ),
+              );
             }
           }
           continue;
@@ -295,46 +343,57 @@ class DynamicFieldConfig {
       // Check for customerDetails composite field
       if (typeStr == 'customerdetails') {
         final custConfig = raw['customerConfig'] as Map<String, dynamic>?;
-        final reqParts = custConfig?['requiredParts'] as List<dynamic>? ?? ['name', 'phone'];
+        final reqParts =
+            custConfig?['requiredParts'] as List<dynamic>? ?? ['name', 'phone'];
         final baseOrder = (raw['order'] as int? ?? syntheticIndex++) * 100;
 
-        result.add(DynamicFieldConfig(
-          id: 'sec_customer_${raw['id'] ?? syntheticIndex++}',
-          fieldName: stripHtml(raw['label']?.toString() ?? 'Lead Customer Details'),
-          fieldType: DynamicFieldType.sectionSplitter.id,
-          sequence: baseOrder,
-        ));
+        result.add(
+          DynamicFieldConfig(
+            id: 'sec_customer_${raw['id'] ?? syntheticIndex++}',
+            fieldName: stripHtml(
+              raw['label']?.toString() ?? 'Lead Customer Details',
+            ),
+            fieldType: DynamicFieldType.sectionSplitter.id,
+            sequence: baseOrder,
+          ),
+        );
 
-        result.add(DynamicFieldConfig(
-          id: 'customer_name',
-          fieldName: 'Customer Name',
-          fieldType: DynamicFieldType.text.id,
-          dataKey: 'customer_name',
-          isMandatory: reqParts.contains('name'),
-          sequence: baseOrder + 1,
-        ));
+        result.add(
+          DynamicFieldConfig(
+            id: 'customer_name',
+            fieldName: 'Customer Name',
+            fieldType: DynamicFieldType.text.id,
+            dataKey: 'customer_name',
+            isMandatory: reqParts.contains('name'),
+            sequence: baseOrder + 1,
+          ),
+        );
 
         if (reqParts.contains('phone')) {
-          result.add(DynamicFieldConfig(
-            id: 'customer_phone',
-            fieldName: 'Customer Phone',
-            fieldType: DynamicFieldType.phoneNumber.id,
-            dataKey: 'customer_phone',
-            isMandatory: true,
-            isSriLankanPhone: true,
-            sequence: baseOrder + 2,
-          ));
+          result.add(
+            DynamicFieldConfig(
+              id: 'customer_phone',
+              fieldName: 'Customer Phone',
+              fieldType: DynamicFieldType.phoneNumber.id,
+              dataKey: 'customer_phone',
+              isMandatory: true,
+              isSriLankanPhone: true,
+              sequence: baseOrder + 2,
+            ),
+          );
         }
 
         if (reqParts.contains('email')) {
-          result.add(DynamicFieldConfig(
-            id: 'customer_email',
-            fieldName: 'Customer Email',
-            fieldType: DynamicFieldType.email.id,
-            dataKey: 'customer_email',
-            isMandatory: false,
-            sequence: baseOrder + 3,
-          ));
+          result.add(
+            DynamicFieldConfig(
+              id: 'customer_email',
+              fieldName: 'Customer Email',
+              fieldType: DynamicFieldType.email.id,
+              dataKey: 'customer_email',
+              isMandatory: false,
+              sequence: baseOrder + 3,
+            ),
+          );
         }
         continue;
       }
@@ -345,12 +404,16 @@ class DynamicFieldConfig {
         final subFields = userConfig?['fields'] as List<dynamic>?;
         final baseOrder = (raw['order'] as int? ?? syntheticIndex++) * 100;
 
-        result.add(DynamicFieldConfig(
-          id: 'sec_user_${raw['id'] ?? syntheticIndex++}',
-          fieldName: stripHtml(raw['label']?.toString() ?? 'Collector Details'),
-          fieldType: DynamicFieldType.sectionSplitter.id,
-          sequence: baseOrder,
-        ));
+        result.add(
+          DynamicFieldConfig(
+            id: 'sec_user_${raw['id'] ?? syntheticIndex++}',
+            fieldName: stripHtml(
+              raw['label']?.toString() ?? 'Collector Details',
+            ),
+            fieldType: DynamicFieldType.sectionSplitter.id,
+            sequence: baseOrder,
+          ),
+        );
 
         if (subFields != null && subFields.isNotEmpty) {
           int offset = 1;
@@ -362,13 +425,15 @@ class DynamicFieldConfig {
             if (key == 'phone') sfType = DynamicFieldType.phoneNumber.id;
             if (key == 'email') sfType = DynamicFieldType.email.id;
 
-            result.add(DynamicFieldConfig(
-              id: 'user_$key',
-              fieldName: label,
-              fieldType: sfType,
-              dataKey: 'user_$key',
-              sequence: baseOrder + offset++,
-            ));
+            result.add(
+              DynamicFieldConfig(
+                id: 'user_$key',
+                fieldName: label,
+                fieldType: sfType,
+                dataKey: 'user_$key',
+                sequence: baseOrder + offset++,
+              ),
+            );
           }
         }
         continue;
